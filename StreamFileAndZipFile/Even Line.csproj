@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Even_Line</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="words.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="words.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="expectedResult.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="text.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
