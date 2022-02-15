@@ -1,196 +1,85 @@
 ﻿using System;
-using System.ComponentModel.Design;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using System.Threading;
 
-namespace _9._Miner_Exc
+namespace MultidimensionalArrays
 {
-    class Program
+    class MultidimensionalArrays
     {
         static void Main(string[] args)
         {
-            int sizeMatrix = int.Parse(Console.ReadLine());
-
-            char[][] gameField = new char[sizeMatrix][];
-
-            string[] moveComand = Console.ReadLine()
-                .Split(" ", StringSplitOptions.RemoveEmptyEntries);
-
-            int moveCount = moveComand.Length;
-            int count = 0;
-            int minerRow = 0;
-            int minerCol = 0;
-
-            for (int i = 0; i < gameField.GetLength(0); i++)
+            int size = int.Parse(Console.ReadLine());
+            if (size < 3)
             {
-                char[] input = Console.ReadLine()
-                    .Split(" ", StringSplitOptions.RemoveEmptyEntries)
-                    .Select(char.Parse)
-                    .ToArray();
+                Console.WriteLine($"0");
+                return;
+            }
+            size += 4;
+            string[][] board = new string[size][];
+            int maxHits = 1, maxRow = 0, maxCol = 0, count = 0;
+            board[0] = (new String('0', size)).Select(c => c.ToString()).ToArray();
+            board[1] = (new String('0', size)).Select(c => c.ToString()).ToArray();
+            board[size - 1] = (new String('0', size)).Select(c => c.ToString()).ToArray();
+            board[size - 2] = (new String('0', size)).Select(c => c.ToString()).ToArray();
 
-                gameField[i] = input;
-
-                //Shearch a position miner 's' and count of coals
-                for (int j = 0; j < input.Length; j++)
+            for (int row = 2; row < size - 2; row++)
+            {
+                string line = "00" + Console.ReadLine() + "00";
+                board[row] = line.ToCharArray().Select(c => c.ToString()).ToArray();
+            }
+            while (maxHits > 0)
+            {
+                maxHits = 0;
+                for (int row = 2; row < size - 2; row++)
                 {
-                    if (input[j] == 'c')
+                    for (int col = 2; col < size - 2; col++)
                     {
-                        count++;
-                    }
-
-                    if (input[j] == 's')
-                    {
-                        minerRow = i;
-                        minerCol = j;
+                        int hits = 0;
+                        if (board[row][col] == "K")
+                        {
+                            hits = Hits(row, col, board);
+                            if (hits > maxHits)
+                            {
+                                maxHits = hits;
+                                maxRow = row;
+                                maxCol = col;
+                            }
+                        }
                     }
                 }
-            }
-
-
-            for (int i = 0; i < moveComand.Length; i++)
-            {
-                string curenComand = moveComand[i];
-                moveCount--;
-                
-                // curenComand check a valid possition on gameField
-                if (ComandisValidPosition(gameField, minerRow, minerCol, curenComand))
+                if (maxHits > 0)
                 {
-
-                    if (curenComand == "up")
-                    {
-                        minerRow -= 1;
-                        if (gameField[minerRow][minerCol] == 'e')
-                        {
-                            Console.WriteLine($"Game over! ({minerRow}, {minerCol})");
-                            break;
-                        }
-
-                        if (gameField[minerRow][minerCol] == 'c')
-                        {
-                            if (count-1 <= 0)
-                            {
-                                Console.WriteLine($"You collected all coals! ({minerRow}, {minerCol})");
-                                break;
-                            }
-                            else
-                            {
-                                count--;
-                            }
-                        }
-
-                        gameField[minerRow][minerCol] = 's';
-                        gameField[minerRow+1][minerCol] = '*';
-
-                    }
-                    else if (curenComand == "down")
-                    {
-                        minerRow += 1;
-                        if (gameField[minerRow][minerCol] == 'e')
-                        {
-                            Console.WriteLine($"Game over! ({minerRow}, {minerCol})");
-                            break;
-                        }
-                        if (gameField[minerRow][minerCol] == 'c')
-                        {
-                            if (count - 1 <= 0)
-                            {
-                                Console.WriteLine($"You collected all coals! ({minerRow}, {minerCol})");
-                                break;
-                            }
-                            else
-                            {
-                                count--;
-                            }
-                        }
-
-                        gameField[minerRow][minerCol] = 's';
-                        gameField[minerRow -1][minerCol] = '*';
-                    }
-                    else if (curenComand == "right")
-                    {
-                        minerCol += 1;
-                        if (gameField[minerRow][minerCol] == 'e')
-                        {
-                            Console.WriteLine($"Game over! ({minerRow}, {minerCol})");
-                            break;
-                        }
-
-                        if (gameField[minerRow][minerCol] == 'c')
-                        {
-                            if (count - 1 <= 0)
-                            {
-                                Console.WriteLine($"You collected all coals! ({minerRow}, {minerCol})");
-                                break;
-                            }
-                            else
-                            {
-                                count--;
-                            }
-                        }
-
-                        gameField[minerRow][minerCol] = 's';
-                        gameField[minerRow][minerCol-1] = '*';
-                    }
-                    else if (curenComand == "left")
-                    {
-                        minerCol -= 1;
-                        if (gameField[minerRow][minerCol] == 'e')
-                        {
-                            Console.WriteLine($"Game over! ({minerRow}, {minerCol})");
-                            break;
-                        }
-
-                        if (gameField[minerRow][minerCol] == 'c')
-                        {
-                            if (count - 1 <= 0)
-                            {
-                                Console.WriteLine($"You collected all coals! ({minerRow}, {minerCol})");
-                                break;
-                            }
-                            else
-                            {
-                                count--;
-                            }
-                        }
-
-                        gameField[minerRow][minerCol] = 's';
-                        gameField[minerRow][minerCol+1] = '*';
-                    }
-                }
-                if (moveCount == 0)
-                {
-                    Console.WriteLine($"{count} coals left. ({minerRow}, {minerCol})");
+                    board[maxRow][maxCol] = "0";
+                    count++;
                 }
             }
-        }
-
-
-        private static bool ComandisValidPosition(char[][] gameField, int minerRow, int minerCol, string curenComand)
-        {
-            bool isValidIndex = false;
-
-            if (curenComand == "up" && minerRow - 1 >= 0 && minerRow < gameField.Length
-            && minerCol >= 0 && minerCol < gameField[minerRow].Length)
+            Console.WriteLine($"{count}");
+            static int Hits(int row, int col, string[][] board)
             {
-                isValidIndex = true;
-            }
-            else if (curenComand == "down" && minerRow >= 0 && minerRow + 1 < gameField.Length
-                     && minerCol >= 0 && minerCol < gameField[minerRow].Length)
-            {
-                isValidIndex = true;
-            }
-            else if (curenComand == "right" && minerRow >= 0 && minerRow < gameField.Length
-                     && minerCol >= 0 && minerCol + 1 < gameField[minerRow].Length)
-            {
-                isValidIndex = true;
-            }
-            else if (curenComand == "left" && minerRow >= 0 && minerRow < gameField.Length
-                     && minerCol - 1 >= 0 && minerCol < gameField[minerRow].Length)
-            {
-                isValidIndex = true;
+                string k = board[row][col];
+                int hits = 0;
+                if (board[row - 2][col - 1] == k)
+                    hits++;
+                if (board[row - 2][col + 1] == k)
+                    hits++;
+                if (board[row + 2][col - 1] == k)
+                    hits++;
+                if (board[row + 2][col + 1] == k)
+                    hits++;
+                if (board[row - 1][col - 2] == k)
+                    hits++;
+                if (board[row - 1][col + 2] == k)
+                    hits++;
+                if (board[row + 1][col - 2] == k)
+                    hits++;
+                if (board[row + 1][col + 2] == k)
+                    hits++;
+                return hits;
             }
 
-            return isValidIndex;
-        }
+        } // End of Main
     }
 }
